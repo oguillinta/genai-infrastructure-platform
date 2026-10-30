@@ -2,7 +2,7 @@ name: Infrastructure Copilot
 
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
   issue_comment:
     types: [created]
 
