@@ -1,0 +1,22 @@
+name: Infrastructure Copilot On Demand
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  copilot:
+    if: >
+      contains(github.event.issue.labels.*.name, 'infrastructure-request')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test trigger
+        run: echo "Workflow firing OK"
