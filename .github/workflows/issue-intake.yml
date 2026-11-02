@@ -10,29 +10,64 @@ permissions:
 
 jobs:
   intake:
-    if: contains(github.event.issue.labels.*.name, 'infrastructure-request')
+    if: |
+      contains(
+        github.event.issue.labels.*.name,
+        'infrastructure-request'
+      ) &&
+      (
+        github.event.action == 'opened' ||
+        (
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'infrastructure-request'
+        )
+      )
+
     runs-on: ubuntu-latest
+
     steps:
-      - name: Explain next steps
+      - name: Acknowledge infrastructure request
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+
         run: |
           set -euo pipefail
-          gh issue comment "$ISSUE_NUMBER" --repo "$GH_REPO" --body "$(cat <<'EOF'
-          ## Infrastructure Copilot
 
-          I received your request. This lab's first iteration supports the **S3 module** and does not deploy AWS resources.
+          gh issue comment "$ISSUE_NUMBER" \
+            --repo "$GH_REPO" \
+            --body "$(cat <<'EOF'
+          ## Infrastructure Platform — Request Received
 
-          Please make sure the request includes:
-          - bucket_name: globally unique S3 bucket name (lowercase, 3-63 characters)
-          - environment: dev, test, staging, or prod
-          - region: AWS region, for example us-east-1
-          - versioning_enabled: true or false (defaults to true; governance may require it)
+          Your infrastructure request has been received.
 
-          Reply in a comment with missing values using key: value lines. Do not post secrets or customer data.
+          ### Supported AWS Infrastructure
 
-          **Current mode:** intake and clarification only. The next iteration will add LLM-based intent parsing, policy validation and PR generation. No Terraform apply is configured.
+          The platform currently supports:
+
+          - **Amazon S3:** Secure object storage.
+          - **Amazon SQS:** Asynchronous message queues.
+          - **Amazon DynamoDB:** Managed NoSQL tables.
+
+          ### Automated Processing
+
+          The Infrastructure Copilot will:
+
+          1. Analyze your infrastructure requirements using AI.
+          2. Select a compatible Terraform module.
+          3. Validate the required parameters.
+          4. Request additional information if necessary.
+          5. Generate an infrastructure repository from the template.
+          6. Create a Pull Request containing the Terraform proposal.
+
+          ### Important Notes
+
+          - You can describe your requirements in natural language.
+          - If information is missing, reply directly to this issue.
+          - Terraform configurations are reviewed before deployment.
+          - **No AWS resources are automatically provisioned.**
+
+          The Infrastructure Copilot will process your request separately.
           EOF
           )"
