@@ -373,6 +373,12 @@ def main():
                     "Review code and checks before merge. No terraform apply is run by this workflow.\n"
                 )
 
+            subprocess.run(
+                ["terraform", "fmt", "-recursive"],
+                check=True,
+                cwd=checkout,
+            )
+
             subprocess.run(["git", "add", "main.tf", "REQUEST.md"], check=True, cwd=checkout)
             staged = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=checkout).returncode != 0
             if staged:
