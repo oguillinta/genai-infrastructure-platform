@@ -2,7 +2,7 @@ name: Infrastructure Issue Intake
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened]
 
 permissions:
   issues: write
